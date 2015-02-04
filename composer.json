@@ -11,5 +11,8 @@
         "psr-4": {
             "PHPSerializer\\": ["src/", "tests/"]
         }
+    },
+    "require-dev": {
+        "devster/ubench": "~1.1"
     }
 }

@@ -161,19 +161,6 @@ class SerializedArray implements \Iterator, \Countable
 
     public function append($item)
     {
-        // Find the biggest int index
-        $biggestKey = 0;
-        foreach ($this->all() as $key => $value) {
-            if (is_int($key) && $key > $biggestKey) {
-                $biggestKey = $key;
-            }
-        }
-
-        // Append the new item
-        $newKey = ($biggestKey + 1);
-        $this->file->fseek(-1, SEEK_END);
-        $this->file->fwrite('i:' . $newKey . ';' . serialize($item) . '}');
-
         // Update the array definition
         $this->file->fseek(2, SEEK_SET);
         // Get the old definition
@@ -197,6 +184,21 @@ class SerializedArray implements \Iterator, \Countable
             $this->file->fwrite($newDefinition . $restOfLine);
             $this->file->rewind();
         }
+
+        // Append the new item
+        /*
+         * This is too slow, but we need to think of a smart way of finding the biggest key
+         *
+         * $biggestKey = 0;
+         * foreach ($this->all() as $key => $value) {
+            if (is_int($key) && $key > $biggestKey) {
+                $biggestKey = $key;
+            }
+        }* $newKey = ($biggestKey + 1);
+         */
+        $newKey = $newDefinition;
+        $this->file->fseek(-1, SEEK_END);
+        $this->file->fwrite('i:' . $newKey . ';' . serialize($item) . '}');
 
         $this->rewind();
     }
