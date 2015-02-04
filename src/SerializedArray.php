@@ -44,17 +44,18 @@ class SerializedArray implements \Iterator, \Countable
     {
         $file = $this->file;
 
-        // Move past the declaration
-        if (($char = $file->fgetc()) !== ($exp = 'i') || ($char = $file->fgetc()) !== ($exp = ':')) {
-            // The next characters aren't an array index identifier. Must be end of file.
-            return $this->end = true;
-        }
+        // Get the item key
         $key = '';
         while (($char = $file->fgetc()) !== ';') {
+            if ($char === false) {
+                // End of file
+                return $this->end = true;
+            }
             $key .= $char;
         }
-        $this->currentKey = $key;
+        $this->currentKey = ($key . ';');
 
+        // Get the item value
         $buildString = '';
         $stop = false;
         $levels = 0;
@@ -93,7 +94,7 @@ class SerializedArray implements \Iterator, \Countable
      */
     public function key()
     {
-        return $this->currentKey;
+        return unserialize($this->currentKey);
     }
 
     /**

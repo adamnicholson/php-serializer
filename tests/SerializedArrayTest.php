@@ -35,6 +35,43 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $this->assertTrue($array instanceof SerializedArray);
     }
 
+    public function testInstanceWithFlatAssociativeArray()
+    {
+        $array = SerializedArray::createFromArray(['foo' => 'bar', 'baz' => 'boz']);
+
+        $this->assertTrue($array instanceof SerializedArray);
+
+        $array->next();
+        $this->assertEquals($array->key(), 'foo');
+        $this->assertEquals($array->current(), 'bar');
+
+
+        $array->next();
+        $this->assertTrue($array->valid());
+        $this->assertEquals($array->key(), 'baz');
+        $this->assertEquals($array->current(), 'boz');
+
+        $array->next();
+        $this->assertFalse($array->valid());
+    }
+
+    public function testInstanceWithFlatIndexedArray()
+    {
+        $array = SerializedArray::createFromArray(['bar','boz']);
+
+        $this->assertTrue($array instanceof SerializedArray);
+
+        $array->next();
+        $this->assertEquals($array->current(), 'bar');
+
+        $array->next();
+        $this->assertTrue($array->valid());
+        $this->assertEquals($array->current(), 'boz');
+
+        $array->next();
+        $this->assertFalse($array->valid());
+    }
+
     public function testFirstCallToNextReturnsFirstItem()
     {
         $stream = new SplTempFileObject();
