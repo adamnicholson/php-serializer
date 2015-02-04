@@ -115,4 +115,29 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $array = SerializedArray::createFromArray($rawArray);
         $this->assertEquals($array->count(), 8);
     }
+
+    public function testAllAlwaysReturnsAll()
+    {
+        $rawArray = ['foo', 'bar', 'foo', 5, 19.2, true, false, []];
+        $array = SerializedArray::createFromArray($rawArray);
+        $this->assertEquals($all = $array->all(), $rawArray);
+        $this->assertEquals($array->all(), $all);
+    }
+
+    public function testAppend()
+    {
+        $rawArray = ['foo', 'bar'];
+        $array = SerializedArray::createFromArray($rawArray);
+
+        $array->append('baz');
+        $this->assertEquals($array->count(), count($rawArray) + 1);
+
+        // Iterate to the new item and make sure it is as expected
+        $array->rewind();
+        $array->next();
+        $array->next();
+        $array->next();
+        $this->assertEquals($array->current(), 'baz');
+
+    }
 }

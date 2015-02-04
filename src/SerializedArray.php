@@ -6,7 +6,7 @@ use SplFileObject;
 
 class SerializedArray implements \Iterator, \Countable
 {
-    protected $file;
+    public $file;
     protected $itemsCount;
     protected $current;
     protected $currentKey;
@@ -94,6 +94,10 @@ class SerializedArray implements \Iterator, \Countable
      */
     public function key()
     {
+        if ($this->itterated === 0) {
+            $this->next();
+        }
+
         return unserialize($this->currentKey);
     }
 
@@ -138,6 +142,7 @@ class SerializedArray implements \Iterator, \Countable
         }
 
         $this->itterated = 0;
+        $this->end = false;
     }
 
     /**
@@ -154,6 +159,61 @@ class SerializedArray implements \Iterator, \Countable
         return $this->itemsCount;
     }
 
+    public function append($item)
+    {
+        // Find the biggest int index
+        $biggestKey = 0;
+        foreach ($this->all() as $key => $value) {
+            if (is_int($key) && $key > $biggestKey) {
+                $biggestKey = $key;
+            }
+        }
+
+        // Append the new item
+        $newKey = ($biggestKey + 1);
+        $this->file->fseek(-1, SEEK_END);
+        $this->file->fwrite('i:' . $newKey . ';' . serialize($item) . '}');
+
+        // Update the array definition
+        $this->file->fseek(2, SEEK_SET);
+        // Get the old definition
+        $oldDefinition = '';
+        while (($char = $this->file->fgetc()) !== ':') {
+            $oldDefinition .= $char;
+        }
+
+        $this->file->rewind();
+
+        $newDefinition = $oldDefinition + 1;
+        if (strlen($newDefinition) == strlen($oldDefinition)) {
+            // New definition is the same length as the old one, so just overwrite those chars
+            $this->file->fseek(2, SEEK_SET);
+            $this->file->fwrite($newDefinition, strlen($newDefinition));
+        } else {
+            // New definition is longer than the old. Re-write the line
+            $this->file->fseek(2 + strlen($oldDefinition), SEEK_SET);
+            $restOfLine = $this->file->fgets();
+            $this->file->fseek(2, SEEK_SET);
+            $this->file->fwrite($newDefinition . $restOfLine);
+            $this->file->rewind();
+        }
+
+        $this->rewind();
+    }
+
+    public function all()
+    {
+        $this->file->fseek(0, SEEK_SET);
+        $this->rewind();
+
+        $items = [];
+        while ($this->valid()) {
+            $items[$this->key()] = $this->current();
+            $this->next();
+        }
+
+        return $items;
+    }
 
     public static function createFromArray(array $array)
     {
