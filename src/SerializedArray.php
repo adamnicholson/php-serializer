@@ -6,7 +6,7 @@ use SplFileObject;
 
 class SerializedArray implements \Iterator, \Countable
 {
-    public $file;
+    protected  $file;
     protected $itemsCount;
     protected $current;
     protected $currentKey;
@@ -215,6 +215,22 @@ class SerializedArray implements \Iterator, \Countable
         }
 
         return $items;
+    }
+
+    public function offsetGet($key)
+    {
+        $this->rewind();
+
+        while ($this->valid()) {
+
+            if ($this->key() === $key) {
+                $item = $this->current();
+                $this->rewind();
+                return $item;
+            }
+
+            $this->next();
+        }
     }
 
     public static function createFromArray(array $array)
