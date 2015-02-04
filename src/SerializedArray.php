@@ -31,7 +31,7 @@ class SerializedArray implements \Iterator, \Countable
         if ($this->itterated === 0) {
             $this->next();
         }
-        return $this->current;
+        return unserialize($this->current);
     }
 
     /**
@@ -81,7 +81,7 @@ class SerializedArray implements \Iterator, \Countable
 
         }
 
-        $this->current = unserialize($buildString);
+        $this->current = $buildString;
         $this->itterated++;
     }
 
