@@ -140,6 +140,26 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($array->current(), 'baz');
     }
 
+    public function testKeys()
+    {
+        $rawArray = [3 => 'foo', 1 =>'bar', 'fookey' => 'test', 'somekey' => 6];
+        $array = SerializedArray::createFromArray($rawArray);
+
+        $this->assertEquals($array->keys(), [3, 1, 'fookey', 'somekey']);
+    }
+
+    public function testOffsetExists()
+    {
+        $rawArray = [3 => 'foo', 1 =>'bar', 'fookey' => 'test', 'somekey' => 6];
+        $array = SerializedArray::createFromArray($rawArray);
+
+        $this->assertTrue($array->offsetExists(3));
+        $this->assertTrue($array->offsetExists(1));
+        $this->assertTrue($array->offsetExists('fookey'));
+        $this->assertTrue($array->offsetExists('somekey'));
+        $this->assertFalse($array->offsetExists(2));
+    }
+
     public function testOffsetGet()
     {
         $rawArray = [3 => 'foo', 1 =>'bar', 'some-key' => 'someVal'];
