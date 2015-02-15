@@ -3,7 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $limitAppends = 2000;
-$controlSize = 10000;
+$controlSize = 5000;
 function getControlData()
 {
     global $controlSize;
@@ -14,8 +14,8 @@ function getControlData()
     return serialize($a);
 }
 
-echo "Building control data\n";
-file_put_contents(__DIR__ . '/appends_data.serialized', getControlData());
+echo "Building control data\n\n";
+file_put_contents(__DIR__ . '/data/appends_data.serialized', getControlData());
 
 // Oldskool PHP
 echo "Benchmarking file based appends by unserialize(), array_push(), and serialize()\n";
@@ -39,11 +39,11 @@ echo "- Performed " . $limitAppends . " appends to a data set of " . $controlSiz
 
 // Oldskool PHP - From file
 echo "Benchmarking appends by unserialize(), array_push(), and serialize()\n";
-file_put_contents(__DIR__ . '/appends_data-2.serialized', file_get_contents(__DIR__ . '/appends_data.serialized'));
+file_put_contents(__DIR__ . '/data/appends_data-2.serialized', file_get_contents(__DIR__ . '/data/appends_data.serialized'));
 $bench = new Ubench;
 $bench->start();
 
-$file = new SplFileObject(__DIR__ . '/appends_data-2.serialized');
+$file = new SplFileObject(__DIR__ . '/data/appends_data-2.serialized');
 for ($i=0; $i<=$limitAppends; $i++) {
     $file->rewind();
     $un = unserialize($file->fgets());
@@ -60,6 +60,7 @@ unset($un);
 unset($file);
 echo "- Performed " . $limitAppends . " appends to a data set of " . $controlSize . " in " . $bench->getTime() . ", with a memory peack of " . $bench->getMemoryPeak() . "\n";
 
+echo "\n";
 
 // PHPSerializer
 echo "Benchmarking appends PHPSerializer\\SerializeArray::append()\n";
@@ -79,11 +80,11 @@ echo "- Performed " . $limitAppends . " appends to a data set of " . $controlSiz
 
 // PHPSerializer
 echo "Benchmarking file based appends PHPSerializer\\SerializeArray::append()\n";
-file_put_contents(__DIR__ . '/appends_data-3.serialized', file_get_contents(__DIR__ . '/appends_data.serialized'));
+file_put_contents(__DIR__ . '/data/appends_data-3.serialized', file_get_contents(__DIR__ . '/data/appends_data.serialized'));
 $bench = new Ubench;
 $bench->start();
 
-$array = new \PHPSerializer\SerializedArray($file = new SplFileObject(__DIR__ . '/appends_data-3.serialized'));
+$array = new \PHPSerializer\SerializedArray($file = new SplFileObject(__DIR__ . '/data/appends_data-3.serialized'));
 for ($i=0; $i<=$limitAppends; $i++) {
     $array->append($i);
 }
@@ -91,3 +92,5 @@ for ($i=0; $i<=$limitAppends; $i++) {
 $bench->end();
 echo "- Counting items in array: " . $array->count() . " items\n";
 echo "- Performed " . $limitAppends . " appends to a data set of " . $controlSize . " in " . $bench->getTime() . ", with a memory peack of " . $bench->getMemoryPeak() . "\n";
+
+echo "\n";

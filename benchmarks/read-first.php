@@ -16,7 +16,7 @@ function getControlData()
     return serialize($a);
 }
 
-echo "Building control data\n";
+echo "Building control data\n\n";
 $string = getControlData();
 
 // Oldskool PHP
@@ -31,6 +31,7 @@ $bench->end();
 
 echo "- Read the first item from a data set of " . $controlSize . " in " . $bench->getTime() . ", with a memory peack of " . $bench->getMemoryPeak() . "\n";
 
+echo "\n";
 
 // PHPSerializer
 echo "Benchmarking reads using unserialize[] \n";
@@ -42,3 +43,5 @@ $item = $array[0];
 
 $bench->end();
 echo "- Read the first item from a data set of " . $controlSize . " in " . $bench->getTime() . ", with a memory peack of " . $bench->getMemoryPeak() . "\n";
+
+echo "\n";
