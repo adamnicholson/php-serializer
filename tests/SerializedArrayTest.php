@@ -140,6 +140,21 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($array->current(), 'baz');
     }
 
+    public function testAppendWithNonLinearArrayKeys()
+    {
+        $rawArray = [3 => 'foo', 1 =>'bar'];
+        $array = SerializedArray::createFromArray($rawArray);
+
+        $array->append('baz');
+
+        $all = $array->all();
+
+        $this->assertEquals(count($all), 3);
+        $this->assertEquals($all[3], 'foo');
+        $this->assertEquals($all[1], 'bar');
+        $this->assertTrue(in_array('baz', $all));
+    }
+
     public function testKeys()
     {
         $rawArray = [3 => 'foo', 1 =>'bar', 'fookey' => 'test', 'somekey' => 6];
