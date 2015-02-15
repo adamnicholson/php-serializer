@@ -233,6 +233,15 @@ class SerializedArray implements \Iterator, \Countable
         }
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function first()
+    {
+        $this->rewind();
+        return $this->valid() ? $this->current() : null;
+    }
+
     public static function createFromArray(array $array)
     {
         return self::createFromString(serialize($array));

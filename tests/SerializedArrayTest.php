@@ -149,4 +149,17 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($array->offsetGet(3), 'foo');
         $this->assertEquals($array->offsetGet('some-key'), 'someVal');
     }
+
+    public function testFirst()
+    {
+        $rawArray = ['foo', 'bar'];
+        $array = SerializedArray::createFromArray($rawArray);
+        $this->assertEquals($array->first(), 'foo');
+    }
+
+    public function testFirstReturnsNullifEmpty()
+    {
+        $array = SerializedArray::createFromArray([]);
+        $this->assertEquals($array->first(), null);
+    }
 }
