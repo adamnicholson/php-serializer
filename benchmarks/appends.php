@@ -18,7 +18,7 @@ echo "Building control data\n\n";
 file_put_contents(__DIR__ . '/data/appends_data.serialized', getControlData());
 
 // Oldskool PHP
-echo "Benchmarking file based appends by unserialize(), array_push(), and serialize()\n";
+echo "Benchmarking appends by unserialize(), array_push(), and serialize()\n";
 $bench = new Ubench;
 $bench->start();
 
@@ -38,7 +38,7 @@ echo "- Performed " . $limitAppends . " appends to a data set of " . $controlSiz
 
 
 // Oldskool PHP - From file
-echo "Benchmarking appends by unserialize(), array_push(), and serialize()\n";
+echo "Benchmarking file based appends by unserialize(), array_push(), and serialize()\n";
 file_put_contents(__DIR__ . '/data/appends_data-2.serialized', file_get_contents(__DIR__ . '/data/appends_data.serialized'));
 $bench = new Ubench;
 $bench->start();
