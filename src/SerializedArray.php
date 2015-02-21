@@ -213,42 +213,6 @@ class SerializedArray implements \Iterator, \Countable
         return $items;
     }
 
-    public function offsetGet($key)
-    {
-        $this->rewind();
-
-        while ($this->valid()) {
-
-            if ($this->key() === $key) {
-                $item = $this->current();
-                $this->rewind();
-                return $item;
-            }
-
-            $this->next();
-        }
-
-        return null;
-    }
-
-    public function offsetExists($key)
-    {
-        return in_array($key, $this->keys());
-    }
-
-    public function keys()
-    {
-        $this->rewind();
-
-        $keys = [];
-        while ($this->valid()) {
-            $keys[] = $this->key();
-            $this->next();
-        }
-
-        return $keys;
-    }
-
     /**
      * @return mixed|null
      */
