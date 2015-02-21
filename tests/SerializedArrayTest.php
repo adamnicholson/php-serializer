@@ -149,7 +149,7 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
 
         $all = $array->all();
 
-        $this->assertEquals(count($all), 3);
+        $this->assertEquals($array->count(), 3);
         $this->assertEquals($all[3], 'foo');
         $this->assertEquals($all[1], 'bar');
         $this->assertTrue(in_array('baz', $all));
@@ -166,5 +166,53 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
     {
         $array = SerializedArray::createFromArray([]);
         $this->assertEquals($array->first(), null);
+    }
+
+    /**
+     * @param $rawArray
+     * @param $timesToCallNext
+     * @param $expected
+     * @dataProvider testRemoveDataProvider
+     */
+    public function testRemove($rawArray, $timesToCallNext, $expected)
+    {
+        $array = SerializedArray::createFromArray($rawArray);
+
+        for ($i=0; $i <= $timesToCallNext; $i++) {
+            $array->next();
+        }
+
+        $array->remove();
+
+        $this->assertEquals($array->count(), count($expected));
+
+        $rebuild = [];
+        $array->rewind();
+        foreach ($array as $item) {
+            $rebuild[] = $item;
+        }
+
+        $this->assertEquals($rebuild, $expected);
+    }
+
+    public function testRemoveDataProvider()
+    {
+        return [
+            [
+                ['foo', 'bar'],
+                0,
+                ['bar']
+            ],
+            [
+                ['foo', 'bar'],
+                1,
+                ['foo']
+            ],
+            [
+                ['foo', 'bar', 'baz'],
+                1,
+                ['foo', 'baz']
+            ],
+        ];
     }
 }

@@ -9,6 +9,7 @@ class SerializedArray implements \Iterator, \Countable
     protected  $file;
     protected $itemsCount;
     protected $current;
+    protected $currentItemStartPosition;
     protected $currentKey;
     protected $end = false;
     protected $itterated = 0;
@@ -43,6 +44,9 @@ class SerializedArray implements \Iterator, \Countable
     public function next()
     {
         $file = $this->file;
+
+        // Store the starting position in memory in case we need it
+        $this->currentItemStartPosition = $file->ftell();
 
         // Get the item key
         $key = '';
@@ -134,7 +138,7 @@ class SerializedArray implements \Iterator, \Countable
         while (($char = $file->fgetc()) !== ':') {
             $index .= $char;
         }
-        $this->itemsCount = $index;
+        $this->itemsCount = (int) $index;
 
         // Move into the array
         if ($file->fgetc() !== '{') {
@@ -143,6 +147,39 @@ class SerializedArray implements \Iterator, \Countable
 
         $this->itterated = 0;
         $this->end = false;
+    }
+
+    /**
+     * Remove the current() item
+     */
+    public function remove()
+    {
+        // Get the current item
+        $this->current();
+
+        // Calculate the file pointers we're going to need
+        // "Element" refers to the element we're going to remove
+        $endOfElement = $this->file->ftell();
+        $startOfElement = $this->currentItemStartPosition;
+        $sizeOfElement = $endOfElement - $startOfElement;
+
+        // Override the element with data from the rest of the file
+        $restOfFile = $this->file->fgets();
+        $this->file->fseek($startOfElement);
+        $this->file->fwrite($restOfFile, strlen($restOfFile));
+
+        // Get the total file size
+        $this->file->fseek(0, SEEK_END);
+        $totalSize = $this->file->ftell();
+
+        // Remove the number of bytes that were overridden fom the end of the file
+        $this->file->ftruncate($totalSize - $sizeOfElement);
+
+        // Now move the pointer back to where it was
+        $this->file->fseek($startOfElement, SEEK_SET);
+
+        // Update the total items count
+        $this->updateArrayCount($this->itemsCount - 1);
     }
 
     /**
@@ -156,34 +193,19 @@ class SerializedArray implements \Iterator, \Countable
      */
     public function count()
     {
-        return $this->itemsCount;
+        return (int) $this->itemsCount;
     }
 
     public function append($item)
     {
-        // Update the array definition
+        // Count current items
         $this->file->fseek(2, SEEK_SET);
-        // Get the old definition
-        $oldDefinition = '';
+        $oldCount = '';
         while (($char = $this->file->fgetc()) !== ':') {
-            $oldDefinition .= $char;
+            $oldCount .= $char;
         }
+        $this->updateArrayCount((int) $oldCount + 1);
 
-        $this->file->rewind();
-
-        $newDefinition = $oldDefinition + 1;
-        if (strlen($newDefinition) == strlen($oldDefinition)) {
-            // New definition is the same length as the old one, so just overwrite those chars
-            $this->file->fseek(2, SEEK_SET);
-            $this->file->fwrite($newDefinition, strlen($newDefinition));
-        } else {
-            // New definition is longer than the old. Re-write the line
-            $this->file->fseek(2 + strlen($oldDefinition), SEEK_SET);
-            $restOfLine = $this->file->fgets();
-            $this->file->fseek(2, SEEK_SET);
-            $this->file->fwrite($newDefinition . $restOfLine);
-            $this->file->rewind();
-        }
 
         // Generate a random key for the new item.
         // We need to ensure our new key doesn't collide with an existing key.
@@ -197,6 +219,35 @@ class SerializedArray implements \Iterator, \Countable
         $this->file->fwrite('i:' . $newKey . ';' . serialize($item) . '}');
 
         $this->rewind();
+    }
+
+    protected function updateArrayCount($count)
+    {
+        // Get the old count
+        $this->file->fseek(2, SEEK_SET);
+        $oldDefinition = '';
+        while (($char = $this->file->fgetc()) !== ':') {
+            $oldDefinition .= $char;
+        }
+
+        $newDefinition = $count;
+
+        $this->file->rewind();
+
+        if (strlen($newDefinition) == strlen($oldDefinition)) {
+            // New definition is the same length as the old one, so just overwrite those chars
+            $this->file->fseek(2, SEEK_SET);
+            $this->file->fwrite($newDefinition, strlen($newDefinition));
+        } else {
+            // New definition is longer than the old. Re-write the line
+            $this->file->fseek(2 + strlen($oldDefinition), SEEK_SET);
+            $restOfLine = $this->file->fgets();
+            $this->file->fseek(2, SEEK_SET);
+            $this->file->fwrite($newDefinition . $restOfLine);
+            $this->file->rewind();
+        }
+
+        $this->itemsCount = $count;
     }
 
     public function all()
