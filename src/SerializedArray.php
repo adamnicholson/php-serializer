@@ -239,7 +239,7 @@ class SerializedArray implements \Iterator, \Countable
             $this->file->fseek(2, SEEK_SET);
             $this->file->fwrite($newDefinition, strlen($newDefinition));
         } else {
-            // New definition is longer than the old. Re-write the line
+            // New definition is longer than the old. Re-write the line to "push" all characters back one
             $this->file->fseek(2 + strlen($oldDefinition), SEEK_SET);
             $restOfLine = $this->file->fgets();
             $this->file->fseek(2, SEEK_SET);
