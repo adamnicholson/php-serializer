@@ -215,4 +215,17 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
             ],
         ];
     }
+
+    public function testRemovePreservesIteratorPosition()
+    {
+        $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
+        $array->remove();
+        $this->assertEquals($array->current(), 'bar');
+
+        $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
+        $array->next();
+        $array->next();
+        $array->remove();
+        $this->assertEquals($array->current(), 'baz');
+    }
 }

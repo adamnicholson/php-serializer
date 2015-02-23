@@ -53,6 +53,8 @@ class SerializedArray implements \Iterator, \Countable
         while (($char = $file->fgetc()) !== ';') {
             if ($char === false) {
                 // End of file
+                $this->current = null;
+                $this->currentKey = false;
                 return $this->end = true;
             }
             $key .= $char;
@@ -175,11 +177,12 @@ class SerializedArray implements \Iterator, \Countable
         // Remove the number of bytes that were overridden fom the end of the file
         $this->file->ftruncate($totalSize - $sizeOfElement);
 
-        // Now move the pointer back to where it was
-        $this->file->fseek($startOfElement, SEEK_SET);
-
         // Update the total items count
         $this->updateArrayCount($this->itemsCount - 1);
+
+        // Now move the pointer back to where it was
+        $this->file->fseek($startOfElement, SEEK_SET);
+        $this->next();
     }
 
     /**
