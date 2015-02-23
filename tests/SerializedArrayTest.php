@@ -242,4 +242,16 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $array = new SerializedArray($file);
         $this->assertEquals($array->count(), 2);
     }
+
+    public function testOverride()
+    {
+        $path = __DIR__ . '/data/override-test.serialized';
+        $file = new SplFileObject($path, 'w+');
+        $file->fwrite(serialize(['foo', 'bar', 'baz']));
+
+        $array = new SerializedArray($file);
+        $array->override(['newone', 'newtwo']);
+
+        $this->assertEquals($array->count(), 2);
+    }
 }

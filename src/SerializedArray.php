@@ -276,6 +276,14 @@ class SerializedArray implements \Iterator, \Countable
         return $this->valid() ? $this->current() : null;
     }
 
+    public function override(array $array)
+    {
+        $this->file->rewind();
+        $this->file->ftruncate(0);
+        $this->file->fwrite(serialize($array));
+        $this->rewind();
+    }
+
     public static function createFromArray(array $array)
     {
         return self::createFromString(serialize($array));
