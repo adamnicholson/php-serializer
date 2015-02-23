@@ -13,7 +13,6 @@
         }
     },
     "require-dev": {
-        "devster/ubench": "~1.1",
-        "phpunit/phpunit": "~4.5"
+        "devster/ubench": "~1.1"
     }
 }
