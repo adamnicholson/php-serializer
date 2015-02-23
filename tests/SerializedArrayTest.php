@@ -280,4 +280,10 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $array->override([]);
         $this->assertEquals($array->count(), 0);
     }
+
+    public function testValidReturnsFalseOnEmptyArray()
+    {
+        $array = SerializedArray::createFromArray([]);
+        $this->assertEquals($array->valid(), false);
+    }
 }

@@ -148,7 +148,7 @@ class SerializedArray implements \Iterator, \Countable
         }
 
         $this->itterated = 0;
-        $this->end = false;
+        $this->end = ($this->count() === 0);
     }
 
     /**
