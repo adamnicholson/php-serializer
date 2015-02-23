@@ -228,4 +228,18 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $array->remove();
         $this->assertEquals($array->current(), 'baz');
     }
+
+    public function testRemoveUpdatesFile()
+    {
+        $path = __DIR__ . '/data/remove-test.serialized';
+        $file = new SplFileObject($path, 'w+');
+        $file->fwrite(serialize(['foo', 'bar', 'baz']));
+
+        $array = new SerializedArray($file);
+        $this->assertEquals($array->count(), 3);
+        $array->remove();
+
+        $array = new SerializedArray($file);
+        $this->assertEquals($array->count(), 2);
+    }
 }
