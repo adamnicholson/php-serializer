@@ -182,7 +182,6 @@ class SerializedArray implements \Iterator, \Countable
 
         // Now move the pointer back to where it was
         $this->file->fseek($startOfElement, SEEK_SET);
-        $this->next();
     }
 
     /**

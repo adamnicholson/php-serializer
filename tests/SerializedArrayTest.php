@@ -220,12 +220,14 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
     {
         $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
         $array->remove();
+        $array->next();
         $this->assertEquals($array->current(), 'bar');
 
         $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
         $array->next();
         $array->next();
         $array->remove();
+        $array->next();
         $this->assertEquals($array->current(), 'baz');
     }
 
@@ -243,6 +245,23 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $this->assertEquals($array->count(), 2);
     }
 
+    public function testValidReturnsFalseWhenAllItemsRemovedWithRemove()
+    {
+        $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
+        $array->remove();
+        $array->remove();
+        $array->remove();
+
+        $this->assertEquals($array->count(), 0);
+
+        $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
+        foreach ($array as $item) {
+            $array->remove();
+        }
+
+        $this->assertEquals($array->count(), 0);
+    }
+
     public function testOverride()
     {
         $path = __DIR__ . '/data/override-test.serialized';
@@ -253,5 +272,12 @@ class SerializedArrayTest extends PHPUnit_Framework_Testcase
         $array->override(['newone', 'newtwo']);
 
         $this->assertEquals($array->count(), 2);
+    }
+
+    public function testCountZeroWhenAllItemsRemovedUsingOverride()
+    {
+        $array = SerializedArray::createFromArray(['foo', 'bar', 'baz']);
+        $array->override([]);
+        $this->assertEquals($array->count(), 0);
     }
 }
