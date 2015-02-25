@@ -1,5 +1,6 @@
 {
     "name": "php-serializer/php-serializer",
+    "description": "Streaming parser for serialized PHP arrays",
     "authors": [
         {
             "name": "Adam Nicholson",
